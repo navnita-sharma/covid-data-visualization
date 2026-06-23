@@ -1,0 +1,82 @@
+
+# COVID‑19 Data Visualization Project
+**Author:** Navnita Sharma  
+**Date:** June 23, 2026
+
+
+```{r setup, include=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# Set working directory (adjust path)
+setwd("C:/Users/DELL/OneDrive/Documents")
+
+# Load datasets
+day_data <- read_csv("day_wise.csv")
+country_data <- read_csv("country_wise_latest.csv")
+
+# Convert Date column
+day_data$Date <- as.Date(day_data$Date)
+```
+
+## Global Trend Line Chart
+```{r}
+ggplot(day_data, aes(x = Date, y = Confirmed)) +
+  geom_line(color = "purple", linewidth = 1) +
+  labs(title = "Global COVID-19 Confirmed Cases Trend",
+       x = "Date", y = "Confirmed Cases") +
+  theme_minimal()
+```
+
+## Top 10 Countries by Confirmed Cases
+```{r}
+top10 <- country_data %>%
+  arrange(desc(Confirmed)) %>%
+  slice(1:10)
+
+ggplot(top10, aes(x = reorder(`Country/Region`, Confirmed), 
+                  y = Confirmed, fill = `Country/Region`)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Top 10 Countries by Confirmed Cases",
+       x = "Country", y = "Confirmed Cases") +
+  theme_minimal()
+```
+
+## Deaths vs Recovered Scatter Plot
+```{r}
+ggplot(country_data, aes(x = Recovered, y = Deaths, color = `Country/Region`)) +
+  geom_point(alpha = 0.3, size = 3) +
+  labs(title = "Deaths vs Recovered by Country",
+       x = "Recovered Cases", y = "Deaths") +
+  theme_minimal()
+```
+
+## Stacked Bar Chart (Selected Countries)
+```{r}
+india_us <- country_data %>%
+  filter(`Country/Region` %in% c("India", "US","China","Canada","France")) %>%
+  select(`Country/Region`, Confirmed, Deaths, Recovered) %>%
+  pivot_longer(cols = c(Confirmed, Deaths, Recovered),
+               names_to = "Category", values_to = "Count")
+
+ggplot(india_us, aes(x = `Country/Region`, y = Count, fill = Category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "COVID-19 Breakdown (Selected Countries)",
+       x = "Country", y = "Cases") +
+  theme_minimal()
+```
+
+## Correlation Plot (Deaths vs Confirmed)
+```{r}
+ggplot(country_data, aes(x = Confirmed, y = Deaths)) +
+  geom_point(color = "darkblue", alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Correlation Between Confirmed Cases and Deaths",
+       x = "Confirmed Cases", y = "Deaths") +
+  theme_minimal()
+```
+```
+
